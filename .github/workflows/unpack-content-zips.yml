@@ -77,8 +77,6 @@ jobs:
             git rm -f -- "$zip"
           done
 
-          npm i
-          npm run build:ghpages
           git commit -m "Unpack content ZIP(s) into content/ and remove zip file(s) [ci skip]"
 
           # Push to the requested branch. If TARGET_BRANCH is HEAD we push current HEAD.
@@ -88,3 +86,27 @@ jobs:
             # Push local HEAD to origin/<TARGET_BRANCH>
             git push origin HEAD:"$TARGET_BRANCH"
           fi
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site for GitHub Pages
+        # This should produce a ./docs directory (or whatever your publish_dir uses)
+        run: npm run build:ghpages
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          # You can keep github_token (auto-provided) for public repos.
+          # For private repos you may need to use a PAT stored in secrets.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./docs
+          # optional: set a custom commit message
+          commit_message: "chore(deploy): publish site to gh-pages ({{ github.sha }})"
