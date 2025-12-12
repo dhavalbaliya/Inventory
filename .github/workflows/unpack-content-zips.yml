@@ -101,10 +101,10 @@ jobs:
           # Push to same branch
           git push origin HEAD:$CURRENT_BRANCH
 
-      - name: Deploy to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          # You can keep github_token (auto-provided) for public repos.
-          # For private repos you may need to use a PAT stored in secrets.
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+      # - name: Deploy to gh-pages branch
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     # You can keep github_token (auto-provided) for public repos.
+      #     # For private repos you may need to use a PAT stored in secrets.
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./docs
