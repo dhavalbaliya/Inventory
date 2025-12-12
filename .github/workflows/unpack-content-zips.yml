@@ -96,4 +96,4 @@ jobs:
           fi
 
       - name: Done
-        run: echo "Done: zips unpacked, committed and pushed."
+        run: echo "Done zips unpacked, committed and pushed."
