@@ -82,7 +82,8 @@ jobs:
             echo "No changes staged after processing. Nothing to commit."
             exit 0
           fi
-
+          npm i
+          npm run build:ghpages
           git commit -m "Unpack content ZIP(s) into content/ and remove zip file(s) [ci skip]"
 
           # Push to the requested branch. If TARGET_BRANCH is HEAD we push current HEAD.
