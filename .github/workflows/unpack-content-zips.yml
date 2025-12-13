@@ -56,17 +56,37 @@ jobs:
 
           echo "Found ${#zips[@]} zip(s) — processing..."
           for zip in "${zips[@]}"; do
-            zip="${zip/#.\//}"    # remove leading ./ if present
+            zip="${zip/#.\//}"
             echo "Processing: '$zip'"
 
             fname="$(basename -- "$zip")"
-            base="${fname%.[Zz][Ii][Pp]}"   # case-insensitive strip .zip
+            base="${fname%.[Zz][Ii][Pp]}"
 
-            dest="content/$base"
-            mkdir -p "$dest"
+            tmpdir="$(mktemp -d)"
+            echo "Extracting '$zip' to temp dir..."
+            unzip -q "$zip" -d "$tmpdir" || { echo "Failed to unzip $zip"; exit 1; }
 
-            echo "Extracting to '$dest'..."
-            unzip -q -o "$zip" -d "$dest" || { echo "Failed to unzip $zip"; exit 1; }
+            # Count top-level entries inside zip
+            mapfile -t top_entries < <(ls -1 "$tmpdir")
+
+            if [ "${#top_entries[@]}" -eq 1 ] && [ -d "$tmpdir/${top_entries[0]}" ]; then
+              # Zip already has a single root folder → move it
+              final_dest="content/${top_entries[0]}"
+              echo "Zip contains root folder '${top_entries[0]}', moving to '$final_dest'"
+
+              mkdir -p "content"
+              rm -rf "$final_dest"
+              mv "$tmpdir/${top_entries[0]}" "$final_dest"
+            else
+              # Zip contains loose files → create folder from zip name
+              final_dest="content/$base"
+              echo "Zip contains loose files, creating '$final_dest'"
+
+              mkdir -p "$final_dest"
+              mv "$tmpdir"/* "$final_dest"/
+            fi
+
+            rm -rf "$tmpdir"
             rm -f "$zip"
           done
         
